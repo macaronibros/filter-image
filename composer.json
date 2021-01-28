@@ -1,0 +1,16 @@
+{
+  "name": "macaronibros/macaroni_filter_image",
+  "description": "Copy locally remote images and scale them to a given width",
+  "type": "drupal-custom-module",
+  "homepage": "https://github.com/macaronibros/filter-image",
+  "authors": [
+    {
+      "name": "Macaronibros",
+      "homepage": "https://www.macaronibros.com",
+      "role": "Maintainer"
+    }
+  ],
+  "license": "GPL-2.0-or-later",
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+}

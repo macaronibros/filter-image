@@ -1,0 +1,8 @@
+name: Macaroni Filter Image
+type: module
+description: Provide Filter that scale images to a given width.
+core: 8.x
+core_version_requirement: ^8 || ^9
+package: Macaroni
+dependencies:
+  - drupal:filter
