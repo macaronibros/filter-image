@@ -28,7 +28,8 @@ use Drupal\Core\Form\FormStateInterface;
  *   }
  * )
  */
-class MacaroniFilterImage extends FilterBase implements ContainerFactoryPluginInterface {
+class MacaroniFilterImage extends FilterBase implements ContainerFactoryPluginInterface
+{
 
   /**
    * ImageFactory instance.
@@ -67,7 +68,8 @@ class MacaroniFilterImage extends FilterBase implements ContainerFactoryPluginIn
    * @param StreamWrapperManagerInterface $stream_wrapper_manager
    * @param FileSystemInterface $file_system
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, ImageFactory $image_factory, Config $system_file_config, StreamWrapperManagerInterface $stream_wrapper_manager, FileSystemInterface $file_system) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, ImageFactory $image_factory, Config $system_file_config, StreamWrapperManagerInterface $stream_wrapper_manager, FileSystemInterface $file_system)
+  {
 
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->imageFactory = $image_factory;
@@ -79,7 +81,7 @@ class MacaroniFilterImage extends FilterBase implements ContainerFactoryPluginIn
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition)
   {
 
-     return new static(
+    return new static(
       $configuration,
       $plugin_id,
       $plugin_definition,
@@ -105,22 +107,19 @@ class MacaroniFilterImage extends FilterBase implements ContainerFactoryPluginIn
     foreach ($images as $image) {
       // Copy remote images locally.
       if ($image['location'] == 'remote') {
-        $local_file_path = 'scale/remote/' . md5(file_get_contents($image['local_path'])) . '-scaled' . '.'. $image['extension'];
+        $local_file_path = 'scale/remote/' . md5(file_get_contents($image['local_path'])) . '-scaled' . '.' . $image['extension'];
         // Once Drupal 8.7.x is unsupported remove this IF statement.
         if (floatval(\Drupal::VERSION) >= 8.8) {
           $image['destination'] = $this->systemFileConfig->get('default_scheme') . '://' . $local_file_path;
-        }
-        else {
+        } else {
           $image['destination'] = file_default_scheme() . '://' . $local_file_path;
         }
-      }
-      else {
+      } else {
         $path_info = $this->getPathinfo($image['local_path']);
         // Once Drupal 8.7.x is unsupported remove this IF statement.
         if (floatval(\Drupal::VERSION) >= 8.8) {
           $local_file_dir = $this->streamWrapperManager->getTarget($path_info['dirname']);
-        }
-        else {
+        } else {
           $local_file_dir = file_uri_target($path_info['dirname']);
         }
         $local_file_path = 'scale/' . ($local_file_dir ? $local_file_dir . '/' : '') . $path_info['filename'] . '-scaled' . '.' . $path_info['extension'];
@@ -149,13 +148,12 @@ class MacaroniFilterImage extends FilterBase implements ContainerFactoryPluginIn
           // Image loaded successfully; scale.
           $expected_size = $this->settings['image_scale'];
 
-          if($image['actual_size'] > $expected_size) {
+          if ($image['actual_size'] > $expected_size) {
 
             $res->scale($expected_size);
             $res->save();
           }
-        }
-        else {
+        } else {
           // Image failed to load - type doesn't match extension or invalid; keep original file
           $handle = fopen($image['destination'], 'w');
           fwrite($handle, file_get_contents($image['local_path']));
@@ -194,7 +192,8 @@ class MacaroniFilterImage extends FilterBase implements ContainerFactoryPluginIn
    * @return array
    *   Return the images.
    */
-  private function getImages(array $settings, $text) {
+  private function getImages(array $settings, $text)
+  {
     $images = array();
 
     // Find all image tags, ensuring that they have a src.
@@ -213,9 +212,8 @@ class MacaroniFilterImage extends FilterBase implements ContainerFactoryPluginIn
       // Extract the query string (image style token) if any from the url.
       $src_query = parse_url($matches[4][$key], PHP_URL_QUERY);
       if ($src_query) {
-        $src = substr($matches[4][$key], 0, - strlen($src_query) - 1);
-      }
-      else {
+        $src = substr($matches[4][$key], 0, -strlen($src_query) - 1);
+      } else {
         $src = $matches[4][$key];
       }
 
@@ -261,11 +259,9 @@ class MacaroniFilterImage extends FilterBase implements ContainerFactoryPluginIn
       $host = \Drupal::request()->getHost();
       if (strpos($src, $base_path) === 0) {
         $location = 'local';
-      }
-      elseif (preg_match('/http[s]?:\/\/' . preg_quote($host . $base_path, '/') . '/', $src)) {
+      } elseif (preg_match('/http[s]?:\/\/' . preg_quote($host . $base_path, '/') . '/', $src)) {
         $location = 'local';
-      }
-      elseif (strpos($src, 'http') === 0) {
+      } elseif (strpos($src, 'http') === 0) {
         $location = 'remote';
       }
 
@@ -284,14 +280,13 @@ class MacaroniFilterImage extends FilterBase implements ContainerFactoryPluginIn
         $lang_codes = '';
 
         // Convert to a public file system URI.
-        /** @var \Drupal\Core\StreamWrapper\StreamWrapperManager $stream_wrapper_manager **/
+        /** @var \Drupal\Core\StreamWrapper\StreamWrapperManager $stream_wrapper_manager * */
         $stream_wrapper_manager = \Drupal::service('stream_wrapper_manager');
         $public_wrapper = $stream_wrapper_manager->getViaScheme('public');
         $directory_path = $public_wrapper->getDirectoryPath() . '/';
         if (preg_match('!^' . preg_quote($directory_path, '!') . '!', $local_path)) {
           $local_path = 'public://' . preg_replace('!^' . preg_quote($directory_path, '!') . '!', '', $local_path);
-        }
-        // Convert to a file system path if using private files.
+        } // Convert to a file system path if using private files.
         elseif (preg_match('!^(\?q\=)?' . $lang_codes . 'system/files/!', $local_path)) {
           $local_path = 'private://' . preg_replace('!^(\?q\=)?' . $lang_codes . 'system/files/!', '', $local_path);
         }
@@ -320,8 +315,7 @@ class MacaroniFilterImage extends FilterBase implements ContainerFactoryPluginIn
             fclose($handle);
             $local_path = $tmp_file;
           }
-        }
-        catch (ClientException $e) {
+        } catch (ClientException $e) {
           \Drupal::logger('macaroni_filter_image')->error('File %src was not found on remote server.', ['%src' => $src]);
         }
       }
@@ -337,17 +331,16 @@ class MacaroniFilterImage extends FilterBase implements ContainerFactoryPluginIn
         continue;
       }
 
-      $actual_width = (int) $image_size[0];
-      $actual_height = (int) $image_size[1];
+      $actual_width = (int)$image_size[0];
+      $actual_height = (int)$image_size[1];
 
       // If either height or width is missing, calculate the other.
       if (empty($attributes['height']) && is_numeric($attributes['width'])) {
         $ratio = $actual_height / $actual_width;
-        $attributes['height'] = (int) round($ratio * $attributes['width']);
-      }
-      elseif (empty($attributes['width']) && is_numeric($attributes['height'])) {
+        $attributes['height'] = (int)round($ratio * $attributes['width']);
+      } elseif (empty($attributes['width']) && is_numeric($attributes['height'])) {
         $ratio = $actual_width / $actual_height;
-        $attributes['width'] = (int) round($ratio * $attributes['height']);
+        $attributes['width'] = (int)round($ratio * $attributes['height']);
       }
 
       // Skip processing if the image is a remote tracking image.
@@ -385,6 +378,10 @@ class MacaroniFilterImage extends FilterBase implements ContainerFactoryPluginIn
         continue;
       }
 
+      if ($this->isAnimatedGif($local_path)) {
+        $this->deleteTemp($location, $local_path);
+        continue;
+      }
       // If getting this far, the image exists and is not the right size, needs
       // to be saved locally from a remote server, or needs attributes added.
       // Add all information to a list of images that need resizing.
@@ -405,9 +402,43 @@ class MacaroniFilterImage extends FilterBase implements ContainerFactoryPluginIn
   }
 
   /**
+   * Check if current image is animated
+   * @param $filename
+   * @return bool
+   * return true if image is animated, false otherwise
+   */
+  private function isAnimatedGif($filename)
+  {
+    $raw = file_get_contents($filename);
+
+    $offset = 0;
+    $frames = 0;
+    while ($frames < 2) {
+      $where1 = strpos($raw, "\x00\x21\xF9\x04", $offset);
+      if ($where1 === false) {
+        break;
+      } else {
+        $offset = $where1 + 1;
+        $where2 = strpos($raw, "\x00\x2C", $offset);
+        if ($where2 === false) {
+          break;
+        } else {
+          if ($where1 + 8 == $where2) {
+            $frames++;
+          }
+          $offset = $where2 + 1;
+        }
+      }
+    }
+
+    return $frames > 1;
+  }
+
+  /**
    * A short-cut function to delete temporary remote images.
    */
-  private function deleteTemp($source, $uri) {
+  private function deleteTemp($source, $uri)
+  {
     if ($source == 'remote' && is_file($uri)) {
       @unlink($uri);
     }
@@ -421,7 +452,8 @@ class MacaroniFilterImage extends FilterBase implements ContainerFactoryPluginIn
    * @param $settings
    *   Settings for the input filter.
    */
-  private function getImageTag($image = NULL, $settings = NULL) {
+  private function getImageTag($image = NULL, $settings = NULL)
+  {
     $src = file_create_url($image['destination']);
 
     // Strip the http:// from the path if the original did not include it.
@@ -443,7 +475,8 @@ class MacaroniFilterImage extends FilterBase implements ContainerFactoryPluginIn
   /**
    * Utility function to return path information.
    */
-  private function getPathInfo($uri) {
+  private function getPathInfo($uri)
+  {
     $info = pathinfo($uri);
     $info['extension'] = substr($uri, strrpos($uri, '.') + 1);
     $info['basename'] = basename($uri);
@@ -451,8 +484,7 @@ class MacaroniFilterImage extends FilterBase implements ContainerFactoryPluginIn
     // Once Drupal 8.7.x is unsupported remove this IF statement.
     if (floatval(\Drupal::VERSION) >= 8.8) {
       $info['scheme'] = \Drupal::service('stream_wrapper_manager')->getScheme($uri);
-    }
-    else {
+    } else {
       $info['scheme'] = \Drupal::service('file_system')->uriScheme($uri);
     }
 
@@ -476,7 +508,8 @@ class MacaroniFilterImage extends FilterBase implements ContainerFactoryPluginIn
   /**
    * {@inheritdoc}
    */
-  public function settingsForm(array $form, FormStateInterface $form_state) {
+  public function settingsForm(array $form, FormStateInterface $form_state)
+  {
 
     $settings['image_locations'] = [
       '#type' => 'checkboxes',
